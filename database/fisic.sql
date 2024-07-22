@@ -21,11 +21,14 @@ USE `pontoCIESP` ;
 CREATE TABLE IF NOT EXISTS `pontoCIESP`.`funcionarios` (
   `registro` INT(10) NOT NULL,
   `nome` VARCHAR(100) NOT NULL,
+  `sobrenome` VARCHAR(100) NOT NULL,
   `email` VARCHAR(256) NOT NULL,
   `senha` VARCHAR(256) NOT NULL,
+  `tipo` ENUM('funcionario', 'administrador'),
   PRIMARY KEY (`registro`))
 ENGINE = InnoDB;
 
+select * from funcionarios;
 
 -- -----------------------------------------------------
 -- Table `pontoCIESP`.`cargaHoraria`
