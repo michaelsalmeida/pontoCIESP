@@ -1,0 +1,127 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./style.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div>
+        <h1>PASSAMOS AQUI</h1>
+        <input type="text" id="registro" placeholder="digite seu numero de registro" required>
+        <input type="text" id="nome" placeholder="digite seu nome" required>
+        <input type="email" id="email" placeholder="digite seu email" required>
+        <input type="password" id="senha" minlength="8" placeholder="digite sua senha" required>
+        <input type="password" id="confSenha" minlength="8" placeholder="confirme sua senha" required>
+
+        <label for="cargo">Selecione o Cargo:</label>
+        <select id="cargo" name="cargo" >
+            <option value="funcionario">Funcionário</option>
+            <option value="administrador">Administrador</option>
+        </select>
+        <button id="entrar">
+            CADASTRAR
+        </button>
+    </div>
+
+    <div id="modal">
+        <button id="fechaModal">X</button>
+        <label for="senhaADM">Digite sua senha de administrador para confirmar novo cadastro</label>
+        <input type="password" id="senhaADM" name="senhaADM" required>
+    </div>
+
+    <script type="module">
+        import { alertas, alertaPageAtual } from './sweetalert.js';
+
+        function teste () {
+            const tipo = document.getElementById('cargo').value;
+            console.log(tipo)
+        }
+
+        async function entrar () {
+            const registro = document.getElementById('registro').value;
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const confSenha = document.getElementById('confSenha').value;
+            const tipo = document.getElementById('cargo').value;
+
+            if (senha == confSenha) {
+                if (tipo == 'funcionario') {
+                    const dadosEnviados = {
+                        registro : registro,
+                        nome : nome,
+                        email : email,
+                        senha : senha,
+                        confSenha : confSenha, 
+                        tipo : tipo
+                    };
+        
+                    const requisicao = await fetch (`http://localhost:3000/usuario/cadastro`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify(dadosEnviados) 
+                    });
+        
+                    const resposta = await requisicao.json();
+                    
+                    if (resposta.status == 'success') {
+                        sessionStorage.setItem('status', resposta.status);
+                        sessionStorage.setItem('mensagem', resposta.msg);
+    
+                        window.location.href = './index.html'
+                    } else {
+                        alertaPageAtual(resposta.status, resposta.msg);
+                    }
+
+                } else {
+                    console.log('entrei')
+                    var div = document.getElementById("modal");
+                    div.setAttribute('style', 'display: flex');
+                }
+            } else {
+                alertaPageAtual('error', 'Senhas não coincidem');
+            }
+
+        }
+
+        document.getElementById('entrar').addEventListener('click', () => {
+            entrar();
+        })
+
+        document.getElementById('cargo').addEventListener('change', () => {
+            teste();
+        })
+
+        function fechaModal() {
+            document.getElementById('modal').setAttribute('style', 'none');
+        }
+
+        document.getElementById('fechaModal').addEventListener('click', () => {
+            fechaModal();
+        })
+    </script>
+
+</body>
+
+</html>
+
+
+<!-- function removerSessionStorage(){
+    sessionStorage.removeItem('status');
+    sessionStorage.removeItem('mensagem');
+}
+
+
+export async function alertaPageAtual (status, mensagem) {
+  sessionStorage.setItem('status', status);
+  sessionStorage.setItem('mensagem', mensagem);
+
+  alertas();
+} -->
