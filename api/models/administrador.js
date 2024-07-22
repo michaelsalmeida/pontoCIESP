@@ -8,16 +8,25 @@ async function emailExiste (email, tabela) {
 
 }
 
-async function cadastrar (registro, nome, email, senha, tipo) {
-    const sql = 'INSERT INTO funcionarios VALUES (?, ?, ?, ?)';
+async function registroExiste (email, tabela) {
+    const sql = `SELECT * FROM ${tabela} WHERE registro = ?`;
+    const [consulta] = await conn.execute(sql, [email]);
+    
+    return consulta;
 
-    const [insercao] = await conn.execute(sql, [registro, nome, email, senha, tipo]);
+}
+
+async function cadastrar (registro, nome, sobrenome, email, senha, tipo) {
+    const sql = 'INSERT INTO funcionarios VALUES (?, ?, ?, ?, ?, ?)';
+
+    const [insercao] = await conn.execute(sql, [registro, nome, sobrenome, email, senha, tipo]);
 
     return insercao;
 }
 
 
 export const administradorDB = {
+    registroExiste,
     emailExiste,
     cadastrar
 }

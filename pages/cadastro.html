@@ -14,9 +14,11 @@
         <h1>PASSAMOS AQUI</h1>
         <input type="text" id="registro" placeholder="digite seu numero de registro" required>
         <input type="text" id="nome" placeholder="digite seu nome" required>
+        <input type="text" id="sobrenome" placeholder="digite seu sobrenome" required>
         <input type="email" id="email" placeholder="digite seu email" required>
         <input type="password" id="senha" minlength="8" placeholder="digite sua senha" required>
         <input type="password" id="confSenha" minlength="8" placeholder="confirme sua senha" required>
+        <br><br>
 
         <label for="cargo">Selecione o Cargo:</label>
         <select id="cargo" name="cargo" >
@@ -45,6 +47,7 @@
         async function entrar () {
             const registro = document.getElementById('registro').value;
             const nome = document.getElementById('nome').value;
+            const sobrenome = document.getElementById('sobrenome').value;
             const email = document.getElementById('email').value;
             const senha = document.getElementById('senha').value;
             const confSenha = document.getElementById('confSenha').value;
@@ -55,6 +58,7 @@
                     const dadosEnviados = {
                         registro : registro,
                         nome : nome,
+                        sobrenome : sobrenome,
                         email : email,
                         senha : senha,
                         confSenha : confSenha, 

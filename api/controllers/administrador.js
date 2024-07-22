@@ -8,25 +8,30 @@ import { campoIndefinido, erroPadrao, jogaErro } from '../services/tratamentos.j
 
 
 async function cadastro (req, res) {
-    const  { registro, nome, email, senha, tipo } = req.body;
+    const  { registro, nome, sobrenome, email, senha, tipo } = req.body;
 
     try {
-        console.log(registro, nome, email, senha, tipo)
-        await campoIndefinido([registro, nome, email, senha, tipo]) // Verifica se os campos foram definidos
+        await campoIndefinido([registro, nome, sobrenome, email, senha, tipo]) // Verifica se os campos foram definidos
+
+        const registroJaExiste = await administradorDB.registroExiste(registro, 'funcionarios');
 
         // verifica se o email ja existe na tabela do google (cada email so pode estar em uma tabela só, ou no login normao ou no do google)
         const usuarioExisteTabela = await administradorDB.emailExiste(email, 'funcionarios');
-    
+        
+        if (registroJaExiste.length > 0) {
+            jogaErro('Registro já existente no sistema')
+        };
+
         if (usuarioExisteTabela.length > 0) {
             jogaErro('Email já cadastrado na plataforma!')
-        }
+        };
         
         // criptografia da senha do usuário
         const salt = await bcrypt.genSalt(12)
         const senhaHash = await bcrypt.hash(senha, salt);
         
         // cadastro em si do usuário
-        await administradorDB.cadastrar(registro, nome, email, senhaHash, tipo)
+        await administradorDB.cadastrar(registro, nome, sobrenome, email, senhaHash, tipo)
         res.status(201).json({ status : 'success' , msg : "Usuário cadastrado com sucesso! Realize o login!"})
 
     } catch (error) {
