@@ -24,9 +24,18 @@ async function cadastrar (registro, nome, sobrenome, email, senha, tipo) {
     return insercao;
 }
 
+async function loginModel(registro) {
+    const sql = "SELECT registro, nome, sobrenome, email, senha, tipo FROM funcionarios WHERE registro = ?";
+
+    const [[consulta]] = await conn.execute(sql, [registro]);
+
+    return consulta;
+}
+
 
 export const administradorDB = {
     registroExiste,
     emailExiste,
-    cadastrar
+    cadastrar,
+    loginModel
 }

@@ -3,21 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Document</title>
 </head>
 <body>
-    <p>FUNFOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUU</p>
+    <p>LOGIN</p>
+
+    <label for="registro">Registro</label>
+    <input type="text" id="registro" name="senha" placeholder="N° de registro" required>
+
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" name="senha">
+
+    <button id="entrar">Entrar</button>
+
+    <br><br>
+
+    <a href="./cadastro.html" id="criarConta">Criar Conta</a>
+
+    <script type="module">
+
+    </script>
     
     <script type="module">
         import { alertas, alertaPageAtual } from './sweetalert.js';
-    
-            window.addEventListener('load', async () => {
-                alertas();
+        
+        window.addEventListener('load', async () => {
+            alertas();
+        })
+
+        async function Logar () {
+            let registro = document.getElementById('registro').value;
+            let senha = document.getElementById('senha').value;
+
+            
+
+            const requisicao = await fetch ('http://localhost:3000/usuario/login', {
+                method : 'POST',
+                credentials : 'include',
+                headers : {
+                    'content-type' : 'application/json',
+                    'Cookies' : decodeURIComponent(document.cookie)
+                },
+                body : JSON.stringify({ registro, senha })
             })
+
+            const resposta = await requisicao.json();
+
+            console.log(resposta);
+
+            if (resposta.status == 'success') {
+                const d = new Date();
+                d.setTime(d.getTime() + (3*60*60*1000));
+                let expires = "expires="+ d.toUTCString();
+                console.log(resposta);
+
+                document.cookie = `usuario=${resposta.cookie}; expires=${expires}; path=/;`;
+
+                window.location.href = './resumoHoras.html';
+
+            } else {
+                alertaPageAtual(resposta.status, resposta.msg);
+            }
+        }
+        
+
+        document.getElementById('entrar').addEventListener('click', () => { 
+            Logar();
+        })
 
 
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
 </body>
 </html>

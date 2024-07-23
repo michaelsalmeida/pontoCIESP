@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>Resumo de horas</p>
+
+    <input type="month" name="data" id="data">
+
+    <h1>Relatório de Ponto</h1>
+    <div id="tabelaContainer"></div>
+
+
+
+    <script>
+        function criarTabela(dados) {
+            console.log(dados)
+
+            var tabela = `<table style="width:100%"><tr>
+            <th>Data</th>
+            <th>Entrada</th>
+            <th>Saída</th>
+            <th>Ida Almoço</th>
+            <th>Volta Almoço</th>
+            <th>Motivo</th>
+        </tr>`;
+
+            if (dados.length <= 0) {
+                tabela = tabela + `<tr>
+                <td colspan=6>Nenhum horário lançado para o mês selecionado</td>
+            </tr>`
+            } else {
+
+                var linha = ``;
+
+                for (var i = 0; i < dados.length; i ++) {
+                    const dataRetorno = new Date(dados[i]['data']);
+
+                    const soData = dataRetorno.toLocaleDateString('pt-BR');
+
+                    linha += `<tr><td><p>${soData}</p></td><td><p>${dados[i]['entrada']}</p></td><td><p>${dados[i]['saida']}</p></td><td><p>${dados[i]['idaIntervalo']}</p></td><td><p>${dados[i]['voltaIntervalo']}</p></td><td><p>${dados[i]['motivo']}</p></td></tr>
+                    `
+                }
+                tabela = tabela + linha + '</table>';
+            }
+
+            return tabela;
+        }
+
+        function getCurrentMonthAndYear() {
+            const today = new Date();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+            const year = today.getFullYear();
+            return `${year}-${month}`;
+        }
+
+        const dataAtual = getCurrentMonthAndYear();
+
+        async function puxarHorarios (dataEscolhida) {
+            try {        
+        
+                    const requisicao = await fetch ('http://localhost:3000/usuario/horarios', {
+                        method : 'POST',
+                        headers : {
+                            'Content-Type':'application/json',
+                            'Cookies' : decodeURIComponent(document.cookie)
+                        },
+                        body: JSON.stringify({ dataEscolhida })
+                    })
+        
+                    const resposta = await requisicao.json();
+
+
+                    return resposta.horarios;                 
+    
+
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        window.addEventListener('load', async () => {
+
+            sessionStorage.setItem('acabouDeEntrarNessaPagina', 0);
+
+            if (sessionStorage.getItem('acabouDeEntrarNessaPagina') == 0) {
+                const data = getCurrentMonthAndYear();
+                puxarHorarios(data);
+
+                sessionStorage.setItem('acabouDeEntrarNessaPagina', 1);
+            }
+            
+
+        })
+        // Função para obter a data atual no formato YYYY-MM
+
+        // Definir o valor máximo para o input de mês
+        const mesAnoInput = document.getElementById('data');
+        mesAnoInput.max = getCurrentMonthAndYear();
+
+
+
+        document.getElementById('data').addEventListener('change', async () => {
+            const data = document.getElementById('data').value;
+
+            const dados = await puxarHorarios(data);
+
+            const tab = criarTabela(dados);
+
+            document.getElementById('tabelaContainer').innerHTML= tab;
+        })
+        
+    </script>
+</body>
+</html>

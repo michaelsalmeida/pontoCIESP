@@ -7,13 +7,13 @@ dotenv.config();
 
 const secretKey = process.env.SECRET_KEY;
 
-export function criarjwt(id, nome, email, tipo, google = '') {
+export function criarjwt(registro, nome, sobrenome, email, tipo) {
         const payload = {
-            id,
+            registro,
             nome,
+            sobrenome,
             email,
-            tipo,
-            google
+            tipo
         }
 
     const options = {
@@ -32,12 +32,11 @@ export function parseJwt(token) {
     var parsedData = JSON.parse(jsonPayload);
 
     var result = {
-        id: ('sub' in parsedData) ? parsedData.sub : parsedData.id,
-        nome: ('given_name' in parsedData) ? parsedData.given_name : parsedData.nome,
+        registro: parsedData.registro,
+        nome: parsedData.nome,
+        sobrenome : parsedData.sobrenome,
         email: parsedData.email,
-        tipo: parsedData.tipo,
-        google: parsedData.google,
-        iss: parsedData.iss
+        tipo: parsedData.tipo
     };
 
     return result;
@@ -53,6 +52,6 @@ export async function autorizacao(tipo, token) {
     // Verifica se o tipo do payload, 
     // é igual ao tipo exigido na verificação
     if (payload.tipo != tipo) {
-        jogaErro(`Realize o login com permissão de ${tipo}`)
+        jogaErro(`Permissão de acesso NEGADO`)
     }
 }
