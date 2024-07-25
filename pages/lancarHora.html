@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <h1>Lançamento de Horas</h1>
+    </div>
+
+    <a href="./resumoHoras.html">VOLTAR</a> <br><br>
+
+    <label for="data">DATA : </label>
+    <input type="date" name="data" id="data" required> <br><br>
+
+    <label for="horaEntrada">ENTRADA : </label>
+    <input type="time" name="horaEntrada" id="horaEntrada" required>
+
+    <label for="horaSaida">SAIDA : </label>
+    <input type="time" name="horaSaida" id="horaSaida" required>
+
+    <label for="idaAlmoco">IDA ALMOÇO : </label>
+    <input type="time" name="idaAlmoco" id="idaAlmoco" required>
+
+    <label for="voltaAlmoco">VOLTA ALMOÇO : </label>
+    <input type="time" name="voltaAlmoco" id="voltaAlmoco" required> <br><br>
+
+    <label for="motivo">MOTIVO : </label>
+    <input type="text" name="motivo" id="motivo" value="Jornada normal" required><br><br>
+
+    <button id="lancarHora">LANÇAR HORA : </button>
+
+    <script type="module">
+        import { alertas, alertaPageAtual } from './sweetalert.js';
+
+        window.addEventListener('load', async () => {
+            alertas();
+        })
+
+        function calcularDiferencaHorarios(horaInicial, horaFinal) {
+            // Divide as strings de hora em horas e minutos
+            const [horaInicialH, horaInicialM] = horaInicial.split(':').map(Number);
+            const [horaFinalH, horaFinalM] = horaFinal.split(':').map(Number);
+
+            // Cria objetos Date para os horários inicial e final
+            const dataInicial = new Date();
+            dataInicial.setHours(horaInicialH, horaInicialM, 0, 0);
+            const dataFinal = new Date();
+            dataFinal.setHours(horaFinalH, horaFinalM, 0, 0);
+
+            // Calcula a diferença em milissegundos
+            const diferencaEmMilissegundos = dataFinal - dataInicial;
+
+            // Converte a diferença para horas
+            const diferencaEmHoras = diferencaEmMilissegundos / (1000 * 60 * 60);
+
+            // Formata a diferença em horas para HH:MM
+            const horas = Math.floor(diferencaEmHoras);
+            const minutos = Math.floor((diferencaEmHoras - horas) * 60);
+            const resultado = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+
+            return resultado;
+        }
+
+        async function lancarHoras () {
+            const data = document.getElementById('data').value;
+            const entrada = document.getElementById('horaEntrada').value;
+            const saida = document.getElementById('horaSaida').value;
+            const idaAlmoco = document.getElementById('idaAlmoco').value;
+            const voltaAlmoco = document.getElementById('voltaAlmoco').value;
+            const motivo = document.getElementById('motivo').value;
+
+            const cargaDiaria = calcularDiferencaHorarios(entrada, saida)
+
+            console.log(cargaDiaria);
+
+            // if (data != '' && entrada != '' && saida != '' && idaAlmoco != '' && voltaAlmoco != '' && motivo != '') {
+            //     const dadosEnviados = {
+            //         data,
+            //         entrada,
+            //         saida,
+            //         idaAlmoco,
+            //         voltaAlmoco,
+            //         motivo
+            //     }
+    
+            //     console.log(dadosEnviados)
+                
+            //     const requisicao = await fetch ('http://localhost:3000/usuario/lancarHora', {
+            //         method : 'POST',
+            //         credentials : 'include',
+            //         headers : {
+            //             'Content-Type' : 'application/json',
+            //             'Cookies' : decodeURIComponent(document.cookie)
+            //         },
+            //         body : JSON.stringify(dadosEnviados)
+            //     });
+    
+            //     const resposta = await requisicao.json();
+    
+            //     console.log(resposta);
+    
+            //     sessionStorage.setItem('status', resposta.status);
+            //     sessionStorage.setItem('mensagem', resposta.msg);
+    
+            //     if (resposta.status == 'success') {
+            //         window.location.href = './resumoHoras.html';
+            //     } else {
+            //         alertas();
+            //     }
+
+            // } else {
+            //     alertaPageAtual('error', 'Preencha todos os campo')
+            // }
+
+        } 
+
+        document.getElementById('lancarHora').addEventListener('click', () => {
+            lancarHoras();
+        })
+    </script>
+    
+</body>
+</html>

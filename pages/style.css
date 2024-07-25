@@ -1,3 +1,20 @@
 #modal {
     display: none;
 }
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: center;
+    
+} 
+
+th, td {
+    border-style: double;
+}
+
+#nonehoras { 
+    
+}

@@ -28,9 +28,40 @@ async function retornoHorarios (req, res) {
     }
 }
 
+async function lancarHora (req, res) {
+    try {
+        const { data, entrada, saida, idaAlmoco, voltaAlmoco, motivo } = req.body;
+
+        const token = await cookie(req.headers.cookies);
+
+        const decoded = parseJwt(token);
+
+        await horariosDB.lancarHoraBanco(data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, decoded.registro);
+
+        res.status(201).json({ status : 'success', msg : 'Lançamento feito com sucesso'});
+
+    } catch (error) {
+        erroPadrao(res, error);
+    }
+}
+
+
+async function puxarBancoHoras (req ,res) {
+    try {
+        const token = await cookie(req.headers.cookies);
+
+        const decoded = parseJwt(token);
+
+        const qtdBando = []
+    } catch (error) {
+        erroPadrao(res, error);
+    }
+}
 
 
 
 export const horarios = {
-    retornoHorarios
+    retornoHorarios,
+    lancarHora,
+    puxarBancoHoras
 }

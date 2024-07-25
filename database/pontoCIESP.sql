@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `pontoCIESP`.`cargaHoraria` (
   `saida` TIME NOT NULL,
   `idaIntervalo` TIME NOT NULL,
   `voltaIntervalo` TIME NOT NULL,
+  `cargaDiaria` INT(2),
   `motivo` LONGTEXT NULL,
   `fk_idRegistro` INT(10) NOT NULL,
   PRIMARY KEY (`idCargaHoraria`),
@@ -57,8 +58,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pontoCIESP`.`bancoDeHoras` (
   `idBancoDeHoras` INT NOT NULL AUTO_INCREMENT,
-  `horasAcumuladas` TIME NOT NULL,
-  `horasDevendo` TIME NOT NULL,
+  `horasAcumuladas` INT(2),
   `fk_idRegistro` INT(10) NOT NULL,
   PRIMARY KEY (`idBancoDeHoras`),
   INDEX `fk_bancoDeHoras_funcionarios1_idx` (`fk_idRegistro` ASC),

@@ -21,6 +21,7 @@ routes.post('/usuario/login', administrador.login);
 
 routes.post('/usuario/horarios', horarios.retornoHorarios);
 
+routes.post('/usuario/lancarHora', horarios.lancarHora);
 
 
 export default routes;

@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
 <body>
-    <p>Resumo de horas</p>
+    <div>
+        <p>Resumo de horas</p>
+    </div>
+
+    <a href="./lancarHora.html">Lançar novo horário</a> <br><br>
+
+    <label for="data">Selecione a data para a pesquisa : </label>
 
     <input type="month" name="data" id="data">
 
@@ -15,7 +23,21 @@
 
 
 
-    <script>
+    <script type="module">
+
+        import { alertas, alertaPageAtual } from './sweetalert.js';
+
+        window.addEventListener('load', async () => {
+                alertas();
+
+                const data = getCurrentMonthAndYear();
+                
+                const dados = await puxarHorarios(data);
+
+                const tab = criarTabela(dados);
+
+            })
+
         function criarTabela(dados) {
             console.log(dados)
 
@@ -30,8 +52,8 @@
 
             if (dados.length <= 0) {
                 tabela = tabela + `<tr>
-                <td colspan=6>Nenhum horário lançado para o mês selecionado</td>
-            </tr>`
+                <tr><td id='nonehoras'>Sem registros encontrador para essa data</td></tr>
+            </tr></table>`
             } else {
 
                 var linha = ``;
@@ -82,19 +104,7 @@
             }
         }
 
-        window.addEventListener('load', async () => {
-
-            sessionStorage.setItem('acabouDeEntrarNessaPagina', 0);
-
-            if (sessionStorage.getItem('acabouDeEntrarNessaPagina') == 0) {
-                const data = getCurrentMonthAndYear();
-                puxarHorarios(data);
-
-                sessionStorage.setItem('acabouDeEntrarNessaPagina', 1);
-            }
-            
-
-        })
+        
         // Função para obter a data atual no formato YYYY-MM
 
         // Definir o valor máximo para o input de mês

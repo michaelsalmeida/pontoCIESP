@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 async function buscarHoras(registro, mes) {
 
-    const sql = `SELECT * FROM cargaHoraria WHERE fk_idRegistro = ? AND (data >= ? AND data <= ?)`;
+    const sql = `SELECT * FROM cargaHoraria WHERE fk_idRegistro = ? AND (data >= ? AND data <= ?) ORDER BY data ASC`;
 
     const inicio = `${mes}-01`;
     const fim = `${mes}-31`;
@@ -11,10 +11,18 @@ async function buscarHoras(registro, mes) {
     return consulta;
 }
 
+async function lancarHoraBanco (data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, registro) {
+    const sql = 'INSERT INTO cargaHoraria VALUES (default, ?, ?, ?, ?, ?, ?, ?)';
 
+    const [insercao] = await conn.execute(sql, [data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, registro])
+}
 
+async function puxarBanco (registro) {
+    const sql = 'SELECT '
+}
 
 
 export const horariosDB = {
-    buscarHoras
+    buscarHoras,
+    lancarHoraBanco
 }
