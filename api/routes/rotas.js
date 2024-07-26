@@ -24,4 +24,8 @@ routes.post('/usuario/horarios', horarios.retornoHorarios);
 routes.post('/usuario/lancarHora', horarios.lancarHora);
 
 
+// banco de horas
+
+routes.post('/usuario/lancarBanco', horarios.salvarBancoHora);
+
 export default routes;

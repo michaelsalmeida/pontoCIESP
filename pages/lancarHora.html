@@ -73,7 +73,22 @@
             const voltaAlmoco = document.getElementById('voltaAlmoco').value;
             const motivo = document.getElementById('motivo').value;
 
-            const cargaDiaria = calcularDiferencaHorarios(entrada, saida)
+            const cargaDiaria = calcularDiferencaHorarios(entrada, saida);
+
+            if(cargaDiaria > 9) {
+                const horaParaBanco = cargaDiaria - 9;
+
+                // const requisicao = await fetch ('http://localhos:3000/usuario/lancarBanco', {
+                //     method: 'POST',
+                //     headers : {
+                //         'Content-Type' : 'application/json',
+                //         'Cookies' : decodeURIComponent(document.cookie)
+                //     },
+                //     body : JSON.stringify({ horaParaBanco })
+                // })
+
+                console.log(horaParaBanco)
+            }
 
             console.log(cargaDiaria);
 

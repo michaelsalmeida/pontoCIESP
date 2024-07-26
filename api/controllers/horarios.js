@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv';
+import dotenv, { parse } from 'dotenv';
 
 import { cookie } from '../services/cookie.js'
 import { horariosDB } from '../models/horarios.js';
@@ -45,6 +45,23 @@ async function lancarHora (req, res) {
     }
 }
 
+async function salvarBancoHora (req, res) {
+    try {
+        const { horaParaBanco } = req.body;
+
+        const token = await cookie(req.headers.cookies);
+
+        const decoded = parseJwt(token);
+
+        await horariosDB.salvarBanco(decoded.registro, horaParaBanco);
+
+        res.status(201).json({ status : 'success', msg : 'Banco de horas salvo'});
+
+    } catch (error) {
+        erroPadrao(res, error);
+    }
+}
+
 
 async function puxarBancoHoras (req ,res) {
     try {
@@ -63,5 +80,6 @@ async function puxarBancoHoras (req ,res) {
 export const horarios = {
     retornoHorarios,
     lancarHora,
-    puxarBancoHoras
+    puxarBancoHoras,
+    salvarBancoHora
 }

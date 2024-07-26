@@ -17,12 +17,17 @@ async function lancarHoraBanco (data, entrada, saida, idaAlmoco, voltaAlmoco, mo
     const [insercao] = await conn.execute(sql, [data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, registro])
 }
 
-async function puxarBanco (registro) {
-    const sql = 'SELECT '
+async function salvarBanco (registro, hora) {
+    const sql = 'INSERT INTO bancoDeHoras VALUES (default, ?, ?)';
+
+    const [insercao] = await conn.execute(sql, [hora, registro]);
+
+    return insercao;
 }
 
 
 export const horariosDB = {
     buscarHoras,
-    lancarHoraBanco
+    lancarHoraBanco,
+    salvarBanco
 }

@@ -8,19 +8,26 @@
     <title>Document</title>
 </head>
 <body>
-    <div>
-        <p>Resumo de horas</p>
-    </div>
 
     <a href="./lancarHora.html">Lançar novo horário</a> <br><br>
 
-    <label for="data">Selecione a data para a pesquisa : </label>
+    <div id="inputDate">
 
-    <input type="month" name="data" id="data">
+        <label for="data">Selecione a data para a pesquisa : </label>
+    
+        <input type="month" name="data" id="data">
 
-    <h1>Relatório de Ponto</h1>
+    </div>
+
+    <div id="labelResumo">
+        <h1 id="textResumo">Relatório de Ponto</h1>
+    </div>
+
     <div id="tabelaContainer"></div>
 
+    <div id="semHora">
+        <p id="textSemHora">Sem horários lançados para este mês</p>
+    </div>
 
 
     <script type="module">
@@ -30,11 +37,11 @@
         window.addEventListener('load', async () => {
                 alertas();
 
-                const data = getCurrentMonthAndYear();
+                // const data = getCurrentMonthAndYear();
                 
-                const dados = await puxarHorarios(data);
+                // const dados = await puxarHorarios(data);
 
-                const tab = criarTabela(dados);
+                // const tab = criarTabela(dados);
 
             })
 
@@ -47,14 +54,15 @@
             <th>Saída</th>
             <th>Ida Almoço</th>
             <th>Volta Almoço</th>
+            <th>Carga Diária</th>
             <th>Motivo</th>
         </tr>`;
 
             if (dados.length <= 0) {
-                tabela = tabela + `<tr>
-                <tr><td id='nonehoras'>Sem registros encontrador para essa data</td></tr>
-            </tr></table>`
+                document.getElementById('semHora').setAttribute('style', 'display: flex;');
             } else {
+                
+                document.getElementById('semHora').setAttribute('style', 'display: none;');
 
                 var linha = ``;
 
@@ -63,7 +71,7 @@
 
                     const soData = dataRetorno.toLocaleDateString('pt-BR');
 
-                    linha += `<tr><td><p>${soData}</p></td><td><p>${dados[i]['entrada']}</p></td><td><p>${dados[i]['saida']}</p></td><td><p>${dados[i]['idaIntervalo']}</p></td><td><p>${dados[i]['voltaIntervalo']}</p></td><td><p>${dados[i]['motivo']}</p></td></tr>
+                    linha += `<tr><td><p>${soData}</p></td><td><p>${dados[i]['entrada']}</p></td><td><p>${dados[i]['saida']}</p></td><td><p>${dados[i]['idaIntervalo']}</p></td><td><p>${dados[i]['voltaIntervalo']}</p></td><td><p>${dados[i]['cargaDiaria']}</p></td><td><p>${dados[i]['motivo']}</p></td></tr>
                     `
                 }
                 tabela = tabela + linha + '</table>';
