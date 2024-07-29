@@ -11,6 +11,12 @@
 
     <a href="./lancarHora.html">Lançar novo horário</a> <br><br>
 
+    <div id="divBanco">
+        <label for="bancoAcumulado">Banco de horas acumulado : </label>
+        <p id="bancoAcumulado"></p>
+
+    </div>
+
     <div id="inputDate">
 
         <label for="data">Selecione a data para a pesquisa : </label>
@@ -37,13 +43,12 @@
         window.addEventListener('load', async () => {
                 alertas();
 
-                // const data = getCurrentMonthAndYear();
-                
-                // const dados = await puxarHorarios(data);
+                const banco = await removerSegundos();
 
-                // const tab = criarTabela(dados);
+                document.getElementById('bancoAcumulado').innerText = banco;
 
-            })
+
+        });
 
         function criarTabela(dados) {
             console.log(dados)
@@ -112,6 +117,43 @@
             }
         }
 
+        async function puxarBanco () {
+            // Puxar banco de horas
+
+            const requisicao = await fetch('http://localhost:3000/usuario/buscarBanco' , {
+                    method : 'POST',
+                    headers : {
+                        'Cookies' : decodeURIComponent(document.cookie)
+                    }
+                });
+
+                const resposta = await requisicao.json();
+
+                return resposta['banco'][0]['horasAcumuladas'];
+        }
+
+        async function removerSegundos () {
+            const horario = await puxarBanco();
+
+            const hora = horario.toString();
+
+            // Divide a string em um array usando ":" como separador
+            const partes = hora.split(":");
+
+            // Remove o último elemento do array (os segundos)
+            partes.pop();
+
+            if(Number(partes[0]) > 40) {
+                return false
+            } else {
+
+                // Junta o array novamente usando ":" como separador
+                const horaSemSegundos = partes.join(":");
+    
+                return horaSemSegundos;
+            }
+
+        }
         
         // Função para obter a data atual no formato YYYY-MM
 

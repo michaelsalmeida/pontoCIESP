@@ -30,13 +30,13 @@ async function retornoHorarios (req, res) {
 
 async function lancarHora (req, res) {
     try {
-        const { data, entrada, saida, idaAlmoco, voltaAlmoco, motivo } = req.body;
+        const { data, entrada, saida, idaAlmoco, voltaAlmoco, cargaDiaria, motivo } = req.body;
 
         const token = await cookie(req.headers.cookies);
 
         const decoded = parseJwt(token);
 
-        await horariosDB.lancarHoraBanco(data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, decoded.registro);
+        await horariosDB.lancarHoraBanco(data, entrada, saida, idaAlmoco, voltaAlmoco, cargaDiaria, motivo, decoded.registro);
 
         res.status(201).json({ status : 'success', msg : 'Lançamento feito com sucesso'});
 
@@ -69,7 +69,12 @@ async function puxarBancoHoras (req ,res) {
 
         const decoded = parseJwt(token);
 
-        const qtdBando = []
+        console.log(decoded);
+
+        const qtdBando = await horariosDB.puxarBancoHoras(decoded.registro);
+
+        res.status(201).json({ status : 'success', msg : 'Banco de horas resgatado com sucesso', banco : qtdBando})
+
     } catch (error) {
         erroPadrao(res, error);
     }

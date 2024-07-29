@@ -11,23 +11,32 @@ async function buscarHoras(registro, mes) {
     return consulta;
 }
 
-async function lancarHoraBanco (data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, registro) {
-    const sql = 'INSERT INTO cargaHoraria VALUES (default, ?, ?, ?, ?, ?, ?, ?)';
+async function lancarHoraBanco (data, entrada, saida, idaAlmoco, voltaAlmoco, cargaDiaria, motivo, registro) {
+    const sql = 'INSERT INTO cargaHoraria VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    const [insercao] = await conn.execute(sql, [data, entrada, saida, idaAlmoco, voltaAlmoco, motivo, registro])
+    const [insercao] = await conn.execute(sql, [data, entrada, saida, idaAlmoco, voltaAlmoco, cargaDiaria, motivo, registro])
 }
 
 async function salvarBanco (registro, hora) {
-    const sql = 'INSERT INTO bancoDeHoras VALUES (default, ?, ?)';
+    const sql = 'UPDATE bancoDeHoras SET horasAcumuladas = ? WHERE fk_idRegistro = ?';
 
     const [insercao] = await conn.execute(sql, [hora, registro]);
 
     return insercao;
 }
 
+async function puxarBancoHoras (registro) {
+    const sql = 'SELECT horasAcumuladas FROM bancoDeHoras WHERE fk_idRegistro = ?';
+
+    const [consulta] = await conn.execute(sql, [registro, ]);
+
+    return consulta;
+}
+
 
 export const horariosDB = {
     buscarHoras,
     lancarHoraBanco,
-    salvarBanco
+    salvarBanco,
+    puxarBancoHoras
 }

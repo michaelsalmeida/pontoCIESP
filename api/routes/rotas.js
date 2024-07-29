@@ -14,18 +14,18 @@ routes.post ('/usuario/cadastro', validar.validacaoCadastro, administrador.cadas
 routes.post('/usuario/login', administrador.login);
 
 
-
-
-
-// horarios
+// Horários.
 
 routes.post('/usuario/horarios', horarios.retornoHorarios);
 
 routes.post('/usuario/lancarHora', horarios.lancarHora);
 
 
-// banco de horas
+// Banco de horas.
+
+routes.post('/usuario/buscarBanco', horarios.puxarBancoHoras);
 
 routes.post('/usuario/lancarBanco', horarios.salvarBancoHora);
+
 
 export default routes;

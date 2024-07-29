@@ -32,7 +32,10 @@ async function cadastro (req, res) {
         const senhaHash = await bcrypt.hash(senha, salt);
         
         // cadastro em si do usuário
-        await administradorDB.cadastrar(registro, nome, sobrenome, email, senhaHash, tipo)
+        await administradorDB.cadastrar(registro, nome, sobrenome, email, senhaHash, tipo);
+
+        await administradorDB.zerarBancoHoras(registro);
+        
         res.status(201).json({ status : 'success' , msg : "Usuário cadastrado com sucesso! Realize o login!"})
 
     } catch (error) {

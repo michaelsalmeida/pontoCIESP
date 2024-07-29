@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
 <body>
@@ -31,7 +32,9 @@
     <label for="motivo">MOTIVO : </label>
     <input type="text" name="motivo" id="motivo" value="Jornada normal" required><br><br>
 
-    <button id="lancarHora">LANÇAR HORA : </button>
+    <button id="lancarHora">LANÇAR HORA</button> <br><br>
+
+    <button id="somatoriaHoras">SOMAR</button>
 
     <script type="module">
         import { alertas, alertaPageAtual } from './sweetalert.js';
@@ -40,7 +43,26 @@
             alertas();
         })
 
-        function calcularDiferencaHorarios(horaInicial, horaFinal) {
+        document.getElementById('somatoriaHoras').addEventListener('click', () => {
+            somarHorarios('17:30', '03:45');
+        })
+
+        async function puxarBanco () {
+            // Puxar banco de horas
+
+            const requisicao = await fetch('http://localhost:3000/usuario/buscarBanco' , {
+                    method : 'POST',
+                    headers : {
+                        'Cookies' : decodeURIComponent(document.cookie)
+                    }
+                });
+
+                const resposta = await requisicao.json();
+
+                return resposta['banco'][0]['horasAcumuladas'];
+        }
+
+        async function calcularDiferencaHorarios(horaInicial, horaFinal) {
             // Divide as strings de hora em horas e minutos
             const [horaInicialH, horaInicialM] = horaInicial.split(':').map(Number);
             const [horaFinalH, horaFinalM] = horaFinal.split(':').map(Number);
@@ -65,6 +87,41 @@
             return resultado;
         }
 
+        async function somarHorarios(hora1, hora2) {
+            // Separa as horas e minutos de cada horário
+            const [horas1, minutos1] = hora1.split(':').map(Number);
+            const [horas2, minutos2] = hora2.split(':').map(Number);
+
+            // Calcula a soma dos minutos
+            var minutosTotal = minutos1 + minutos2;
+            var horasAdicionais = 0;
+
+            // Se a soma dos minutos for maior que 60, adiciona uma hora e ajusta os minutos
+            if (minutosTotal >= 60) {
+                horasAdicionais = Math.floor(minutosTotal / 60);
+                minutosTotal %= 60;
+            }
+
+            // Calcula a soma das horas
+            var horasTotal = horas1 + horas2 + horasAdicionais;
+
+            if(horasTotal >= 40) {
+                console.log('excedeu');
+                return `40:00`;
+            } else {
+                // Formata o resultado para o formato HH:MM
+                let horasFormatadas = horasTotal.toString().padStart(2, '0');
+                let minutosFormatados = minutosTotal.toString().padStart(2, '0');
+
+                console.log('normal');
+    
+                return `${horasFormatadas}:${minutosFormatados}`;
+
+            }
+
+        }
+        
+        
         async function lancarHoras () {
             const data = document.getElementById('data').value;
             const entrada = document.getElementById('horaEntrada').value;
@@ -72,66 +129,108 @@
             const idaAlmoco = document.getElementById('idaAlmoco').value;
             const voltaAlmoco = document.getElementById('voltaAlmoco').value;
             const motivo = document.getElementById('motivo').value;
+            
+            // carga horária em string
+            const cargaDiaria = await calcularDiferencaHorarios(entrada, saida);
 
-            const cargaDiaria = calcularDiferencaHorarios(entrada, saida);
+            // separando as horas do sminutos e transformando cada um em number
+            const [horas, minutos] = cargaDiaria.split(':').map(Number);
 
-            if(cargaDiaria > 9) {
-                const horaParaBanco = cargaDiaria - 9;
+            if(horas > 9 || (horas === 9 && minutos > 0)) {            
 
-                // const requisicao = await fetch ('http://localhos:3000/usuario/lancarBanco', {
-                //     method: 'POST',
-                //     headers : {
-                //         'Content-Type' : 'application/json',
-                //         'Cookies' : decodeURIComponent(document.cookie)
-                //     },
-                //     body : JSON.stringify({ horaParaBanco })
-                // })
+                // Pega as horas escedidas na carga horária.
+                const horaAmais = `${horas - 9}:${minutos}`;
 
-                console.log(horaParaBanco)
+                // console.log(horaAmais);
+                
+                // Pega a quantidade de horas já acumuladas no banco de dados
+                const bancoAtual = await removerSegundos();  
+                
+                // console.log(bancoAtual);
+
+                // Verifica se as horas acumuladas no banco já estão no limide e 40
+                if(bancoAtual != false) {
+                    const horaParaBanco = await somarHorarios(bancoAtual, horaAmais);
+    
+                    // console.log(horaParaBanco);
+    
+                    const requisicao = await fetch ('http://localhost:3000/usuario/lancarBanco', {
+                        method: 'POST',
+                        headers : {
+                            'Content-Type' : 'application/json',
+                            'Cookies' : decodeURIComponent(document.cookie)
+                        },
+                        body : JSON.stringify({ horaParaBanco })
+                    })
+                    
+                }
+
             }
 
-            console.log(cargaDiaria);
-
-            // if (data != '' && entrada != '' && saida != '' && idaAlmoco != '' && voltaAlmoco != '' && motivo != '') {
-            //     const dadosEnviados = {
-            //         data,
-            //         entrada,
-            //         saida,
-            //         idaAlmoco,
-            //         voltaAlmoco,
-            //         motivo
-            //     }
+            if (data != '' && entrada != '' && saida != '' && idaAlmoco != '' && voltaAlmoco != '' && motivo != '') {
+                const dadosEnviados = {
+                    data,
+                    entrada,
+                    saida,
+                    idaAlmoco,
+                    voltaAlmoco,
+                    cargaDiaria,
+                    motivo
+                }
     
-            //     console.log(dadosEnviados)
+                console.log(dadosEnviados)
                 
-            //     const requisicao = await fetch ('http://localhost:3000/usuario/lancarHora', {
-            //         method : 'POST',
-            //         credentials : 'include',
-            //         headers : {
-            //             'Content-Type' : 'application/json',
-            //             'Cookies' : decodeURIComponent(document.cookie)
-            //         },
-            //         body : JSON.stringify(dadosEnviados)
-            //     });
+                const requisicao = await fetch ('http://localhost:3000/usuario/lancarHora', {
+                    method : 'POST',
+                    credentials : 'include',
+                    headers : {
+                        'Content-Type' : 'application/json',
+                        'Cookies' : decodeURIComponent(document.cookie)
+                    },
+                    body : JSON.stringify(dadosEnviados)
+                });
     
-            //     const resposta = await requisicao.json();
+                const resposta = await requisicao.json();
     
-            //     console.log(resposta);
+                console.log(resposta);
     
-            //     sessionStorage.setItem('status', resposta.status);
-            //     sessionStorage.setItem('mensagem', resposta.msg);
+                sessionStorage.setItem('status', resposta.status);
+                sessionStorage.setItem('mensagem', resposta.msg);
     
-            //     if (resposta.status == 'success') {
-            //         window.location.href = './resumoHoras.html';
-            //     } else {
-            //         alertas();
-            //     }
+                if (resposta.status == 'success') {
+                    window.location.href = './resumoHoras.html';
+                } else {
+                    alertas();
+                }
 
-            // } else {
-            //     alertaPageAtual('error', 'Preencha todos os campo')
-            // }
+            } else {
+                alertaPageAtual('error', 'Preencha todos os campo')
+            }
 
         } 
+
+        async function removerSegundos () {
+            const horario = await puxarBanco();
+
+            const hora = horario.toString();
+
+            // Divide a string em um array usando ":" como separador
+            const partes = hora.split(":");
+
+            // Remove o último elemento do array (os segundos)
+            partes.pop();
+
+            if(Number(partes[0]) > 40) {
+                return false
+            } else {
+
+                // Junta o array novamente usando ":" como separador
+                const horaSemSegundos = partes.join(":");
+    
+                return horaSemSegundos;
+            }
+
+        }
 
         document.getElementById('lancarHora').addEventListener('click', () => {
             lancarHoras();

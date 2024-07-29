@@ -24,6 +24,15 @@ async function cadastrar (registro, nome, sobrenome, email, senha, tipo) {
     return insercao;
 }
 
+async function zerarBancoHoras (registro) {
+    const sql = 'INSERT INTO bancoDeHoras VALUES (default, ?, ?)';
+
+    const [insercao] = await conn.execute(sql, ['00:00', registro]);
+
+    return insercao;
+
+}
+
 async function loginModel(registro) {
     const sql = "SELECT registro, nome, sobrenome, email, senha, tipo FROM funcionarios WHERE registro = ?";
 
@@ -37,5 +46,6 @@ export const administradorDB = {
     registroExiste,
     emailExiste,
     cadastrar,
-    loginModel
+    loginModel,
+    zerarBancoHoras
 }
