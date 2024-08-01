@@ -10,7 +10,7 @@
     <p>LOGIN</p>
 
     <label for="registro">Registro</label>
-    <input type="text" id="registro" name="senha" placeholder="N° de registro" required>
+    <input type="text" id="registro" name="registro" placeholder="N° de registro" required>
 
     <label for="senha">Senha</label>
     <input type="password" id="senha" name="senha">
@@ -36,7 +36,7 @@
             let registro = document.getElementById('registro').value;
             let senha = document.getElementById('senha').value;
 
-            
+            console.log('registro no input', registro);
 
             const requisicao = await fetch ('http://localhost:3000/usuario/login', {
                 method : 'POST',

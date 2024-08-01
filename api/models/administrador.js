@@ -36,7 +36,7 @@ async function zerarBancoHoras (registro) {
 async function loginModel(registro) {
     const sql = "SELECT registro, nome, sobrenome, email, senha, tipo FROM funcionarios WHERE registro = ?";
 
-    const [[consulta]] = await conn.execute(sql, [registro]);
+    const [[consulta]] = await conn.execute(sql, [registro, ]);
 
     return consulta;
 }

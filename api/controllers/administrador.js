@@ -53,9 +53,11 @@ async function login (req, res) {
     try {
         await campoIndefinido([registro, senha]);
 
+        // console.log('dentro da api', registro)
+
         const consulta = await administradorDB.loginModel(registro);
         
-        console.log(consulta);
+        console.log('Dentro do model :', consulta);
 
         if (consulta.length == 0) {
             jogaErro('Login ou senha inválidos');
