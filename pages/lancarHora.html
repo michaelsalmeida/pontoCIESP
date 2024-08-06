@@ -106,14 +106,12 @@
             var horasTotal = horas1 + horas2 + horasAdicionais;
 
             if(horasTotal >= 40) {
-                console.log('excedeu');
+            
                 return `40:00`;
             } else {
                 // Formata o resultado para o formato HH:MM
                 let horasFormatadas = horasTotal.toString().padStart(2, '0');
                 let minutosFormatados = minutosTotal.toString().padStart(2, '0');
-
-                console.log('normal');
     
                 return `${horasFormatadas}:${minutosFormatados}`;
 
@@ -155,6 +153,14 @@
             const voltaAlmoco = document.getElementById('voltaAlmoco').value;
             const motivo = document.getElementById('motivo').value;
             
+            // flags para saber se vai ter banco de horas para adicionar ao banco
+
+            // flag para saber se a pessoa passou das 9 horas trabalhadas no dia
+            var passouHorarioNormal = false;
+
+            // flag para saber se a pessoa realizou menos de 1:30 de almoço obrigatório
+            var faltouHorarioAlmoco = false;
+
             // carga horária em string
             const cargaDiaria = await calcularDiferencaHorarios(entrada, saida);
 
@@ -162,40 +168,20 @@
 
             const tempoFeitoHorarioAlmoco = await calcularDiferencaHorarios(idaAlmoco, voltaAlmoco);
 
+            // tempo para saber se faltou para completar o horário de almoço e adicionar no banco
             const tempoFaltanteParaCompletarHoraAlmoco = await tempoRestante(tempoFeitoHorarioAlmoco);
 
             // separando as horas dos minutos e transformando cada um em number
             const [horas, minutos] = cargaDiaria.split(':').map(Number);
+        
 
             if(horas > 9 || (horas === 9 && minutos > 0)) {            
+                passouHorarioNormal = true;
 
-                // Pega as horas escedidas na carga horária.
-                const horaAmais = `${horas - 9}:${minutos}`;
+            }
 
-                // console.log(horaAmais);
-                
-                // Pega a quantidade de horas já acumuladas no banco de dados
-                const bancoAtual = await removerSegundos();  
-                
-                console.log(bancoAtual);
-
-                // Verifica se as horas acumuladas no banco já estão no limide e 40
-                if(bancoAtual != false) {
-                    const horaParaBanco = await somarHorarios(bancoAtual, horaAmais);
-    
-                    console.log('tamos resolvendo aqui ', horaParaBanco);
-    
-                    const requisicao = await fetch ('http://localhost:3000/usuario/lancarBanco', {
-                        method: 'POST',
-                        headers : {
-                            'Content-Type' : 'application/json',
-                            'Cookies' : decodeURIComponent(document.cookie)
-                        },
-                        body : JSON.stringify({ horaParaBanco })
-                    })
-                    
-                }
-
+            if (tempoFaltanteParaCompletarHoraAlmoco < '1:30') {
+                faltouHorarioAlmoco = true;
             }
 
             if (data != '' && entrada != '' && saida != '' && idaAlmoco != '' && voltaAlmoco != '' && motivo != '') {
@@ -208,32 +194,72 @@
                     cargaDiaria,
                     motivo
                 }
-    
-                console.log(dadosEnviados)
                 
-                // const requisicao = await fetch ('http://localhost:3000/usuario/lancarHora', {
-                //     method : 'POST',
-                //     credentials : 'include',
-                //     headers : {
-                //         'Content-Type' : 'application/json',
-                //         'Cookies' : decodeURIComponent(document.cookie)
-                //     },
-                //     body : JSON.stringify(dadosEnviados)
-                // });
+                const requisicao = await fetch ('http://localhost:3000/usuario/lancarHora', {
+                    method : 'POST',
+                    credentials : 'include',
+                    headers : {
+                        'Content-Type' : 'application/json',
+                        'Cookies' : decodeURIComponent(document.cookie)
+                    },
+                    body : JSON.stringify(dadosEnviados)
+                });
     
-                // const resposta = await requisicao.json();
-    
-                // console.log(resposta);
-    
-                // sessionStorage.setItem('status', resposta.status);
-                // sessionStorage.setItem('mensagem', resposta.msg);
-    
-                // if (resposta.status == 'success') {
-                //     window.location.href = './resumoHoras.html';
-                // } else {
-                //     alertas();
-                // }
+                const resposta = await requisicao.json();
 
+                if (passouHorarioNormal) {
+                    // Pega as horas escedidas na carga horária.
+                    const horaAmais = `${horas - 9}:${minutos}`;
+
+
+                    // Pega a quantidade de horas já acumuladas no banco de dados
+                    const bancoAtual = await removerSegundos();  
+
+                    // Verifica se as horas acumuladas no banco já estão no limide e 40
+                    if(bancoAtual != false) {
+                        const horaParaBanco = await somarHorarios(bancoAtual, horaAmais);
+
+                        const requisicao = await fetch ('http://localhost:3000/usuario/lancarBanco', {
+                            method: 'POST',
+                            headers : {
+                                'Content-Type' : 'application/json',
+                                'Cookies' : decodeURIComponent(document.cookie)
+                            },
+                            body : JSON.stringify({ horaParaBanco })
+                        })
+                        
+                    }
+                } 
+                
+                if (faltouHorarioAlmoco) {
+                    // Pega a quantidade de horas já acumuladas no banco de dados
+                    const bancoAtual = await removerSegundos(); 
+
+                    // Verifica se as horas acumuladas no banco já estão no limide e 40
+                    if(bancoAtual != false) {
+                        const horaParaBanco = await somarHorarios(bancoAtual, tempoFaltanteParaCompletarHoraAlmoco);
+
+                        const requisicao = await fetch ('http://localhost:3000/usuario/lancarBanco', {
+                            method: 'POST',
+                            headers : {
+                                'Content-Type' : 'application/json',
+                                'Cookies' : decodeURIComponent(document.cookie)
+                            },
+                            body : JSON.stringify({ horaParaBanco })
+                        })
+                        
+                    }
+                }
+    
+                sessionStorage.setItem('status', resposta.status);
+                sessionStorage.setItem('mensagem', resposta.msg);
+    
+                if (resposta.status == 'success') {
+                    window.location.href = './resumoHoras.html';
+                } else {
+                    alertas();
+                }
+                     
             } else {
                 alertaPageAtual('error', 'Preencha todos os campos')
             }
@@ -242,8 +268,6 @@
 
         async function removerSegundos () {
             const horario = await puxarBanco();
-
-            console.log(horario);
 
             const hora = horario.toString();
 
